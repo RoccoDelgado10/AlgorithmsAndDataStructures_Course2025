@@ -39,7 +39,7 @@ void Refugio::addResource(const std::string& resource, float amount)
 
 bool Refugio::consumeResource(const std::string& resource, float amount)
 {
-    for (auto it=m_resources.begin(); it < m_resources.end(); ++it )
+    for (auto it=m_resources.begin(); it != m_resources.end(); ++it )
     {
         if (it->first == resource)
         {
@@ -55,7 +55,7 @@ bool Refugio::consumeResource(const std::string& resource, float amount)
                 return false;
             }
         }
-        else{std::cout << "No hay recurso con ese nombre" << std::endl; return false;}
+        std::cout << "No hay recurso con ese nombre" << std::endl; return false;
     }
 }
 

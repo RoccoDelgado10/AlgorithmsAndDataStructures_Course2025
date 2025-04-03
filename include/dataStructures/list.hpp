@@ -243,14 +243,14 @@ public:
     {
         auto node = new DoublyListNode<TData>(value);
         if (head == nullptr){head=node; return;}
-        node->next = nullptr;
+        node->next = nullptr; //apuntamos el nodo al nullptr
         auto current = head;
-        while ( current->next != nullptr)
+        while ( current->next != nullptr) //vamos al final de la lista
         {
             current =current->next;
         }
-        current->next = node;
-        node->prev = current;
+        current->next = node; //que el siguiente elemento del ultimo sea el nodo
+        node->prev = current; // que el previo al nodo sea el current
 
     }
 
@@ -293,7 +293,21 @@ public:
     */
     void copy_list(const DoublyLinkedList& other)
     {
-        throw std::runtime_error("Not implemented yet");
+        //caso donde no hay elementos en la lista nueva
+        if (other.head == nullptr){std::cout<<"no hay elementos que copiar"<<std::endl; return;}
+        while (head != nullptr) //eliminamos los elementos de la lista vieja
+        {
+            auto current = head;
+            head = head->next;
+            delete current;
+        }
+        //hacemos un pushback en la lista vieja con los elementos de la lista nueva
+        auto current2 = other.head;
+        while (current2 != nullptr)
+        {
+            push_back(current2->data);
+            current2 = current2->next;
+        }
     }
 
     /**
