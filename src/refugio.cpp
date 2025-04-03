@@ -27,26 +27,44 @@ void Refugio::doAction() const
 
 void Refugio::addRefugee(const std::string& refugee)
 {
-    throw std::runtime_error("Not implemented yet");
+    m_refugees.push_back(refugee);
+    std::cout<< "se ha añadido el morador" << refugee << "al refugio 33" <<std::endl;
+
 }
 
 void Refugio::addResource(const std::string& resource, float amount)
 {
-    throw std::runtime_error("Not implemented yet");
+    m_resources.push_back(std::pair(resource,amount));
 }
 
 bool Refugio::consumeResource(const std::string& resource, float amount)
 {
-    throw std::runtime_error("Not implemented yet");
-    return false;
+    for (auto it=m_resources.begin(); it < m_resources.end(); ++it )
+    {
+        if (it->first == resource)
+        {
+            if (it->second >= amount)
+            {
+                it->second -= amount;
+                std::cout << "Se ha consumido "<<amount<<" de "<<resource<<std::endl;
+                return true;
+            }
+            else
+            {
+                std::cout << "No hay suficiente recurso" << std::endl;
+                return false;
+            }
+        }
+        else{std::cout << "No hay recurso con ese nombre" << std::endl; return false;}
+    }
 }
 
 void Refugio::registerVisitant(const std::string& nombre, const EngineData::Faction faccion)
 {
     if (!isSafeFaction(faccion))
     {
-//        std::cout << "Acceso denegado: La facción " << faccionToString(faccion) << " no es segura para el refugio."
-  //                << std::endl;
+       std::cout << "Acceso denegado: La facción " << faccionToString(faccion) << " no es segura para el refugio."
+        << std::endl;
         return;
     }
 
@@ -68,6 +86,19 @@ void Refugio::printRecursive(DoublyListNode<Visitante>* mNode)
         std::cout << "Fin del registro!" << std::endl;
         return;
     }
+    std::cout<<"visitante: "<<mNode->data.nombre;
+    std::cout<<"\n";
+    printRecursive(mNode->next);
+}
+bool Refugio::hasFactionVisited(EngineData::Faction faccion) const
+{
+    auto it=m_visitants->get_head();
+    while (it != nullptr)
+        {
+            if (it->data.faccion == faccion){return true;}
+            if (it == nullptr){return false;}
+            it = it->next;
+        }
 }
 
 

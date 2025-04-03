@@ -1,0 +1,439 @@
+[1mdiff --git a/include/Personajes.hpp b/include/Personajes.hpp[m
+[1mnew file mode 100644[m
+[1mindex 0000000..40c90a7[m
+[1m--- /dev/null[m
+[1m+++ b/include/Personajes.hpp[m
+[36m@@ -0,0 +1,40 @@[m
+[32m+[m[32m//[m
+[32m+[m[32m// Created by Rocco on 27/3/2025.[m
+[32m+[m[32m//[m
+[32m+[m
+[32m+[m[32m#ifndef PERSONAJES_H[m
+[32m+[m[32m#define PERSONAJES_H[m
+[32m+[m
+[32m+[m[32m#include "entidadGenerica.hpp"[m
+[32m+[m[32m#include "wrapperVector.hpp"[m
+[32m+[m[32m#include <iostream>[m
+[32m+[m[32m#include <string>[m
+[32m+[m[32m#include <utility>[m
+[32m+[m[32m#include "list.hpp"[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m * @class Personaje[m
+[32m+[m[32m * @brief Representa un personaje[m
+[32m+[m[32m *[m
+[32m+[m[32m *[m
+[32m+[m[32m *[m
+[32m+[m[32m */[m
+[32m+[m[32mclass Personaje : public EntidadGenerica{[m
+[32m+[m[32mprotected :[m
+[32m+[m[32m    float m_health;   //defino atributos genericos de personajes[m
+[32m+[m[32m    float m_strength;[m
+[32m+[m[32m    float m_energy;[m
+[32m+[m[32mpublic:[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Constructor de personaje[m
+[32m+[m[32m     *[m
+[32m+[m[32m     * @param name Nombre del personaje[m
+[32m+[m[32m     * @param strength Nivel de fuerza inicial del personaje[m
+[32m+[m[32m     * @param energy energia inicial del personaje[m
+[32m+[m[32m     */[m
+[32m+[m[32m    Personaje(const std::string& name, float strength, float energy);[m
+[32m+[m[32m    void showInfo() const override;[m
+[32m+[m[32m    void doAction() const override;[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32m#endif //PERSONAJES_H[m
+[1mdiff --git a/include/dataStructures/list.hpp b/include/dataStructures/list.hpp[m
+[1mindex ee9ad7f..802c8d6 100644[m
+[1m--- a/include/dataStructures/list.hpp[m
+[1m+++ b/include/dataStructures/list.hpp[m
+[36m@@ -40,7 +40,12 @@[m [mpublic:[m
+ [m
+     ~LinkedList()[m
+     {[m
+[31m-        throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m        while(head != nullptr)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            auto temporalNode = head;[m
+[32m+[m[32m            head = head->next;[m
+[32m+[m[32m            delete temporalNode;[m
+[32m+[m[32m        }[m
+     }[m
+ [m
+     /**[m
+[36m@@ -50,7 +55,14 @@[m [mpublic:[m
+      */[m
+     void push_front(const TData& value)[m
+     {[m
+[31m-        throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m        auto node = new ListNode<TData>(value);[m
+[32m+[m[32m        if (head == nullptr)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            node->next = head;[m
+[32m+[m[32m            head = node;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        head = head->next;[m
+[32m+[m[32m        head = node;[m
+     }[m
+ [m
+     /**[m
+[36m@@ -60,7 +72,29 @@[m [mpublic:[m
+     */[m
+     void remove_at(size_t position)[m
+     {[m
+[31m-        throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m        if (head == nullptr){return;} //si esta vacia no hace nada[m
+[32m+[m[32m        int contador = 0;[m
+[32m+[m[32m        if (position == 0) //caso de posicion 0[m
+[32m+[m[32m        {[m
+[32m+[m[32m            auto temporalNode = head;[m
+[32m+[m[32m            head = head->next;[m
+[32m+[m[32m            delete temporalNode;[m
+[32m+[m[32m            return;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        auto current = head;[m
+[32m+[m[32m        ListNode<TData> previous = nullptr;[m
+[32m+[m[32m        while (current != nullptr && contador < position)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            previous = current;[m
+[32m+[m[32m            current = current->next;[m
+[32m+[m[32m            contador++;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        if (current)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            previous->next = current->next;[m
+[32m+[m[32m            delete current;[m
+[32m+[m[32m        }[m
+[32m+[m
+     }[m
+ [m
+     /**[m
+[36m@@ -69,7 +103,45 @@[m [mpublic:[m
+     */[m
+     ListNode<TData>* take(size_t startPosition, size_t nElements)[m
+     {[m
+[31m-        throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m        if (head == nullptr) return nullptr;[m
+[32m+[m[32m        if (startPosition + nElements > size()){return nullptr;}[m
+[32m+[m[32m        auto current = head;[m
+[32m+[m[32m        int contador=0;[m
+[32m+[m[32m        while (contador < startPosition)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            current = current->next;[m
+[32m+[m[32m            contador++;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        auto nuevo = new LinkedList<TData>;[m
+[32m+[m[32m        //punteros controladores[m
+[32m+[m[32m        ListNode<TData> newhead = nullptr, newtail = nullptr;[m
+[32m+[m[32m        for (size_t i = 0; i < nElements; i++)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            auto copia = new ListNode(current->data);[m
+[32m+[m[32m            if (newhead == nullptr) //primer nodo[m
+[32m+[m[32m            {[m
+[32m+[m[32m                newhead = copia;[m
+[32m+[m[32m                newtail = copia;[m
+[32m+[m[32m            } else //lo mandamos al final de la lista[m
+[32m+[m[32m            {[m
+[32m+[m[32m                newtail->next = copia;[m
+[32m+[m[32m                newtail = copia;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            current = current->next; //avanzamos al siguiente nodo[m
+[32m+[m[32m        }[m
+[32m+[m[32m        nuevo->head = newhead; //enlazamos el head de la nueva al primer nodo[m
+[32m+[m[32m        return nuevo;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Devuelve el tamaño de la lista[m
+[32m+[m[32m    size_t size() const {[m
+[32m+[m[32m        size_t count = 0;[m
+[32m+[m[32m        auto current = head;[m
+[32m+[m[32m        while (current) {[m
+[32m+[m[32m            count++;[m
+[32m+[m[32m            current = current->next;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        return count;[m
+     }[m
+ [m
+     /**[m
+[36m@@ -151,7 +223,12 @@[m [mpublic:[m
+      */[m
+     void push_front(const TData& value)[m
+     {[m
+[31m-        throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m        auto node = new ListNode<TData>(value);[m
+[32m+[m[32m        if (head == nullptr)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            node->next = head;[m
+[32m+[m[32m            head = node;[m
+[32m+[m[32m        }[m
+     }[m
+ [m
+     /**[m
+[1mdiff --git a/include/dataStructures/wrapperVector.hpp b/include/dataStructures/wrapperVector.hpp[m
+[1mindex c864053..137d899 100644[m
+[1m--- a/include/dataStructures/wrapperVector.hpp[m
+[1m+++ b/include/dataStructures/wrapperVector.hpp[m
+[36m@@ -5,9 +5,11 @@[m
+ #ifndef WRAPPERVECTOR_HPP[m
+ #define WRAPPERVECTOR_HPP[m
+ [m
+[32m+[m[32m#include <algorithm>[m
+ #include <cstddef>[m
+[32m+[m[32m#include <iostream>[m
+[32m+[m[32m#include <ostream>[m
+ #include <utility>[m
+[31m-#include <algorithm>[m
+ [m
+ auto constexpr INIT_CAPACITY {100}; //< Capacidad inicial del vector[m
+ [m
+[36m@@ -113,6 +115,10 @@[m [mpublic:[m
+      */[m
+     TData& operator[](size_t index)[m
+     {[m
+[32m+[m[32m        if (index >= m_size)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            std::cout << "Indice fuera de limites" << std::endl;[m
+[32m+[m[32m        }[m
+         return m_data[index];[m
+     }[m
+ [m
+[36m@@ -121,6 +127,10 @@[m [mpublic:[m
+      */[m
+     const TData& at(size_t index) const[m
+     {[m
+[32m+[m[32m        if (index >= m_size)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            std::cout << "Indice fuera de limites" << std::endl;[m
+[32m+[m[32m        }[m
+         return m_data[index];[m
+     }[m
+ [m
+[1mdiff --git a/include/inventarioRefugio.hpp b/include/inventarioRefugio.hpp[m
+[1mnew file mode 100644[m
+[1mindex 0000000..d385d79[m
+[1m--- /dev/null[m
+[1m+++ b/include/inventarioRefugio.hpp[m
+[36m@@ -0,0 +1,147 @@[m
+[32m+[m[32m/*[m
+[32m+[m[32m * Inventario del Refugio 33[m
+[32m+[m[32m * Copyright (C) 2025, AyED COM-VIRTUAL[m
+[32m+[m[32m * Marzo 13, 2025.[m
+[32m+[m[32m */[m
+[32m+[m
+[32m+[m[32m#ifndef _INVENTARIO_REFUGIO_HPP[m
+[32m+[m[32m#define _INVENTARIO_REFUGIO_HPP[m
+[32m+[m
+[32m+[m[32m#include <iostream>[m
+[32m+[m[32m#include <string>[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m * @brief Clase que representa un objeto de tipo WrapperVectorInventario. Una implementación de un vector para el[m
+[32m+[m[32m * inventario del refugio.[m
+[32m+[m[32m */[m
+[32m+[m[32mclass WrapperVectorInventario[m
+[32m+[m[32m{[m
+[32m+[m[32mprivate:[m
+[32m+[m[32m    std::string* m_data; //< Puntero a un string que representa el inventario del refugio.[m
+[32m+[m[32m    size_t m_size;       //< Tamaño del inventario del refugio.[m
+[32m+[m[32m    size_t m_capacity;   //< Capacidad del inventario del refugio.[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de redimensionar el inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    void resize(){ //es como el metodo expandir[m
+[32m+[m[32m      m_capacity = (m_capacity == 0) ? 100 : m_capacity * 2;[m
+[32m+[m[32m      auto* nuevo_data = new std::string[m_capacity];[m
+[32m+[m[32m      for (std::string* ptr = m_data; ptr < m_data + m_size; ++ptr) {[m
+[32m+[m[32m       nuevo_data[ptr - m_data] = *ptr;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      delete[] m_data;[m
+[32m+[m[32m      m_data = nuevo_data;[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32mpublic:[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Constructor de la clase WrapperVectorInventario.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    WrapperVectorInventario()[m
+[32m+[m[32m        : m_data(nullptr)[m
+[32m+[m[32m        , m_size(0)[m
+[32m+[m[32m        , m_capacity(0) {};[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Destructor de la clase WrapperVectorInventario.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    ~WrapperVectorInventario()[m
+[32m+[m[32m    {[m
+[32m+[m[32m        delete[] m_data;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de agregar un elemento al inventario del refugio.[m
+[32m+[m[32m     *[m
+[32m+[m[32m     * @param item Elemento a agregar al inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    void pushBack(const std::string& item)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        if (m_size == m_capacity)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            resize();[m
+[32m+[m[32m        }[m
+[32m+[m[32m        m_data[m_size++] = item;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de obtener un elemento del inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    std::string& getAt(size_t index) //el metodo devuelve una referencia a un string, no devuelve una copia[m
+[32m+[m[32m                                     //devuelve un acceso directo al objeto guardado en m_data[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return m_data[index];      //con el podemos modificar directamente el objeto dentro[m
+[32m+[m[32m    }                                //por ej: getAt(2) = "nuevo valor";[m
+[32m+[m[32m    //la funcion getAt que toma como parametro un indice size_t(entero sin signo) que se usa para representar[m
+[32m+[m[32m    // tamaños o indices en contenedores estandar[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de obtener el tamaño del inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    size_t size() const{[m
+[32m+[m[32m      return m_size;[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de obtener la capacidad del inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    size_t capacity() const{[m
+[32m+[m[32m      return m_capacity;[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de imprimir el inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    void print() const{[m
+[32m+[m[32m      if (m_size == 0){[m
+[32m+[m[32m        std::cout<<"Inventario sin elementos"<<std::endl;[m
+[32m+[m[32m        return;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      std::cout << "===Inventario del refugio==== " << std::endl;[m
+[32m+[m[32m      for (auto* ptr = begin(); ptr < end(); ++ptr) {[m
+[32m+[m[32m        std::cout << *ptr << std::endl;[m
+[32m+[m[32m      }[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Método que se encarga de eliminar el último elemento del inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    void popBack(){[m
+[32m+[m[32m      if (m_size == 0){[m
+[32m+[m[32m        std::cout<<"Inventario sin elementos, no se puede eliminar elemento"<<std::endl;[m
+[32m+[m[32m        return;[m
+[32m+[m[32m      }[m
+[32m+[m[32m      std::destroy_at(&m_data[m_size - 1]); // Destruimos el último elemento[m
+[32m+[m[32m      --m_size;[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Iterador final del inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    std::string* end() const[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return m_data + m_size;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Iterador comienzo del inventario del refugio.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    std::string* begin() const{[m
+[32m+[m[32m      return m_data;[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * @brief Intercambiar dos WrapperVectorInventario. (Swap)[m
+[32m+[m[32m     */[m
+[32m+[m[32m    void swap(WrapperVectorInventario& other){[m
+[32m+[m[32m      /*auto* ptr = m_data;[m
+[32m+[m[32m      m_data = other.m_data;[m
+[32m+[m[32m      m_size = other.m_size;[m
+[32m+[m[32m      other.m_data = ptr;[m
+[32m+[m[32m      other.m_size = m_size;*/[m
+[32m+[m[32m      std::swap(m_data, other.m_data);[m
+[32m+[m[32m      std::swap(m_size, other.m_size);[m
+[32m+[m[32m      std::swap(m_capacity, other.m_capacity); //swap implementado por c++ mas seguro y eficiente[m
+[32m+[m[32m    };[m
+[32m+[m[32m};[m
+[32m+[m[32m#endif // _INVENTARIO_REFUGIO_HPP[m
+\ No newline at end of file[m
+[1mdiff --git a/src/refugio.cpp b/src/refugio.cpp[m
+[1mindex 9d94711..09a55a0 100644[m
+[1m--- a/src/refugio.cpp[m
+[1m+++ b/src/refugio.cpp[m
+[36m@@ -1,5 +1,7 @@[m
+ #include "refugio.hpp"[m
+ [m
+[32m+[m[32m#include <utility>[m
+[32m+[m
+ Refugio::Refugio(const std::string& name, float defense, float attack)[m
+     : EntidadGenerica(name)[m
+     , m_defense(defense)[m
+[36m@@ -28,24 +30,43 @@[m [mvoid Refugio::doAction() const[m
+ [m
+ void Refugio::addRefugee(const std::string& refugee)[m
+ {[m
+[31m-    throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m    m_refugees.push_back(refugee);[m
+[32m+[m[32m    std::cout<< "se ha añadido el morador" << refugee << "al refugio 33" <<std::endl;[m
+ }[m
+ [m
+ void Refugio::addResource(const std::string& resource, float amount)[m
+ {[m
+[31m-    throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m    m_resources.push_back(std::pair(resource,amount));[m
+ }[m
+ [m
+ bool Refugio::consumeResource(const std::string& resource, float amount)[m
+ {[m
+[31m-    throw std::runtime_error("Not implemented yet");[m
+[31m-    return false;[m
+[32m+[m[32m    for (auto it=m_resources.begin(); it < m_resources.end(); ++it )[m
+[32m+[m[32m    {[m
+[32m+[m[32m        if (it->first == resource)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            if (it->second >= amount)[m
+[32m+[m[32m            {[m
+[32m+[m[32m                it->second -= amount;[m
+[32m+[m[32m                std::cout << "Se ha consumido "<<amount<<" de "<<resource<<std::endl;[m
+[32m+[m[32m                return true;[m
+[32m+[m[32m            }[m
+[32m+[m[32m            else[m
+[32m+[m[32m            {[m
+[32m+[m[32m                std::cout << "No hay suficiente recurso" << std::endl;[m
+[32m+[m[32m                return false;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        else{std::cout << "No hay recurso con ese nombre" << std::endl; return false;}[m
+[32m+[m[32m    }[m
+ }[m
+ [m
+ void Refugio::registerVisitant(const std::string& nombre, const std::string& faccion)[m
+ {[m
+[32m+[m[32m    Visitante visitante{nombre, faccion};[m
+     // if (!isSafeFaction(faccion)) {[m
+[31m-    throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m    if (m_visitants == nullptr){m_visitants= new DoublyLinkedList<Visitante>();}[m
+[32m+[m[32m    m_visitants->push_front(visitante);[m
+     // }[m
+ }[m
+ [m
+[36m@@ -69,5 +90,11 @@[m [mvoid Refugio::printRecursive(DoublyListNode<Visitante>* mNode)[m
+ [m
+ bool Refugio::hasFactionVisited(const std::string& faccion) const[m
+ {[m
+[31m-    throw std::runtime_error("Not implemented yet");[m
+[32m+[m[32m    auto it=m_visitants->get_head();[m
+[32m+[m[32m    while (it != nullptr)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        if (it->data.faccion == faccion){return true;}[m
+[32m+[m[32m        if (it == nullptr){return false;}[m
+[32m+[m[32m        it = it->next;[m
+[32m+[m[32m    }[m
+ }[m

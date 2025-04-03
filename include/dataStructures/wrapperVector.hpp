@@ -5,9 +5,11 @@
 #ifndef WRAPPERVECTOR_HPP
 #define WRAPPERVECTOR_HPP
 
-#include <cstddef>
-#include <utility>
 #include <algorithm>
+#include <cstddef>
+#include <iostream>
+#include <ostream>
+#include <utility>
 
 auto constexpr INIT_CAPACITY {100}; //< Capacidad inicial del vector
 
@@ -114,6 +116,10 @@ public:
      */
     TData& operator[](size_t index)
     {
+        if (index >= m_size)
+        {
+            std::cout << "Indice fuera de limites" << std::endl;
+        }
         return m_data[index];
     }
 
@@ -122,6 +128,10 @@ public:
      */
     const TData& at(size_t index) const
     {
+        if (index >= m_size)
+        {
+            std::cout << "Indice fuera de limites" << std::endl;
+        }
         return m_data[index];
     }
 

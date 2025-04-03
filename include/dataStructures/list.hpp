@@ -55,9 +55,9 @@ public:
      */
     void push_front(const TData& value)
     {
-        auto nuevo = new ListNode<TData>(value);
-        nuevo->next = head;
-        head = nuevo;
+        auto node = new ListNode<TData>(value);
+            node->next = head;
+            head = node;
     }
 
     /**
@@ -67,40 +67,31 @@ public:
     */
     void remove_at(size_t position)
     {
-        if (head == nullptr)
-        {
-            return;
-        }
+        if (head == nullptr){return;} //si esta vacia no hace nada
 
-        if (position == 0)
+        int contador = 0;
+
+        if (position == 0) //caso de posicion 0
         {
-            auto temp = head;
+            auto temporalNode = head;
             head = head->next;
-            delete temp;
+            delete temporalNode;
             return;
         }
-
-        // Para cualquier otra posicion necesitamos mantener un puntero al nodo anterior
-        auto prev = head;
-        auto current = head->next;
-        size_t current_position = 1;
-
-        // Avanzamos hasta encontrar la posicion o llegar al final de la lista
-        while (current != nullptr && current_position < position)
+        auto current = head;
+        ListNode<TData> previous = nullptr;
+        while (current != nullptr && contador < position)
         {
-            prev = current;
+            previous = current;
             current = current->next;
-            current_position++;
+            contador++;
+        }
+        if (current)
+        {
+            previous->next = current->next;
+            delete current;
         }
 
-        // Si current es nullptr quiere decir que la posicion especifica es mas grande que la lista,
-        // no se encuentra la posicion
-        if (current == nullptr) return;
-
-        // Hacemos que el nodo anterior apunte al nodo siguiente actual
-        prev->next = current->next;
-
-        delete current;
     }
 
     /**
@@ -109,46 +100,48 @@ public:
     */
     ListNode<TData>* take(size_t startPosition, size_t nElements)
     {
-        // Si la lista esta vacia retornamos nullptr
-        if (head == nullptr)
-        {
-            return nullptr;
-        }
+        if (head == nullptr) {return nullptr;}
 
-        // Buscamos el nodo de inicio
-        ListNode<TData>* current = head;
-        size_t current_position = 0;
+        auto current = head;
+        int contador=0;
 
-        // Avanzamos hasta la posicion de inicio
-        while (current != nullptr && current_position < startPosition)
+        while (current!=nullptr && contador < startPosition)
         {
             current = current->next;
-            current_position++;
+            contador++;
         }
+        if (current==nullptr) {return nullptr;}
 
-        // Si current es nullptr, la posicion esta fuera de rango
-        if (current == nullptr) return nullptr;
-
-        // Creamos el primer nodo de la nueva lista
-        ListNode<TData>* new_head = new ListNode<TData>(current->data);
-        ListNode<TData>* new_current = new_head;
-
-        // Avanzamos al siguiente nodo en la lista original
-        current = current->next;
-
-        // Copiamos los siguientes mElements-1 nodos (ya copiamos 1)
-        for (size_t i = 1; i < nElements && current != nullptr; i++)
+        //punteros controladores
+        ListNode<TData> newhead = nullptr, newtail = nullptr;
+        for (size_t i = 0; i < nElements; i++)
         {
-            // Creamos un nuevo nodo con el valor actual
-            new_current->next = new ListNode<TData>(current->data);
-
-            // Avanzamos en ambas listas
-            new_current = new_current->next;
-            current = current->next;
+            auto copia = new ListNode(current->data);
+            if (newhead == nullptr) //primer nodo,es cabeza y cola
+            {
+                newhead = copia;
+                newtail = copia;
+            } else //si no es el primer nodo lo mandamos al final de la lista
+            {
+                newtail->next = copia;
+                newtail = copia;
+            }
+            current = current->next; //avanzamos al siguiente nodo
         }
 
-        return new_head;
+        return newhead;
     }
+
+    // Devuelve el tamaño de la lista
+   /* size_t size() const {
+        size_t count = 0;
+        auto current = head;
+        while (current) {
+            count++;
+            current = current->next;
+        }
+        return count;
+    }*/
 
     /**
      * @brief Imprime todos los elementos de la lista
@@ -229,9 +222,16 @@ public:
      */
     void push_front(const TData& value)
     {
-        auto nuevo = new DoublyListNode<TData>(value);
-        nuevo->next = head;
-        head = nuevo;
+        auto node = new DoublyListNode<TData>(value);
+        if (head == nullptr)
+        {
+            head = node;
+            return;
+        }
+            node->next = head;
+            head->prev = node;
+            node->prev = nullptr;
+            head = node;
     }
 
     /**
@@ -241,28 +241,17 @@ public:
      */
     void push_back(const TData& value)
     {
-        auto nuevo = new DoublyListNode<TData>(value);
-        // nuevo->next = nullptr; No haria falta pq cuando se crea un DoublyListNode next y prev se inicilizan en nullptr
-
-        // Si la lista esta vacia
-        if (!head)
+        auto node = new DoublyListNode<TData>(value);
+        if (head == nullptr){head=node; return;}
+        node->next = nullptr;
+        auto current = head;
+        while ( current->next != nullptr)
         {
-            head = nuevo;
+            current =current->next;
         }
-        else
-        {
-            // Si la lista tiene elementos, recorrer hasta el ultimo nodo
-            // DoublyListNode<TData>* temp = get_head();
-            auto temp = get_head();
-            while (temp->next != nullptr) // Buscamos el ultimo nodo
-            {
-                temp = temp->next;
-            }
+        current->next = node;
+        node->prev = current;
 
-            // temp es el ultimo nodo, se conecta con el nuevo ultimo nodo
-            temp->next = nuevo;
-            nuevo->prev = temp; // El prev de nuevo apunta al antiguo ultimo nodo, osea temp
-        }
     }
 
     /**
@@ -272,57 +261,29 @@ public:
     */
     void remove_at(size_t position)
     {
-        // Si la lista esta vacia no hay nada que eliminar
-        if (head == nullptr)
+        if (head == nullptr){return;} //si esta vacia no hace nada
+        int contador = 0;
+        if (position == 0) //caso de posicion 0
         {
-            return;
-        }
-
-        // Caso que el nodo a eliminar sea el primero (nodo 0)
-        if (position == 0)
-        {
-            DoublyListNode<TData>* temp = head;
+            auto temporalNode = head;
             head = head->next;
-
-            // Si hay mas nodos despues del primero actualizamos el prev del nuevo head
-            if (head != nullptr)
-            {
-                head->prev = nullptr;
-            }
-
-            delete temp;
+            delete temporalNode;
             return;
         }
-
-        // Para cualquier otra posicion recorremos la lista, hacemos un contador para llevar track de
-        // la posicion en la lista
-        DoublyListNode<TData>* current = head;
-        size_t current_position = 0;
-
-        while (current != nullptr && current_position < position)
+        auto current = head;
+ //       DoublyListNode<TData> previous = nullptr; ya no hace falta guardar un previous
+        while (current != nullptr && contador < position)
         {
+        //    previous = current;
             current = current->next;
-            current_position++;
+            contador++;
         }
-
-        // Si current es nullptr quiere decir que la posicion especifica es mas grande que la lista,
-        // no se encuentra la posicion
-        if (current == nullptr) return;
-
-        // current es el nodo que queremos eliminar, conectamos sus
-        // nodos adyacentes
-        if (current->prev != nullptr)
+        if (current)
         {
-            current->prev->next = current->next;
-        }
-
-        if (current->next != nullptr)
-        {
-            current->next->prev = current->prev;
-        }
-
-        delete current;
-
+            (current->prev)->next = current->next;
+            (current->next)->prev = current->prev;
+            delete current;
+        }else {return;} //si no se encuntra el nodo retornar
     }
 
     /**
@@ -332,21 +293,7 @@ public:
     */
     void copy_list(const DoublyLinkedList& other)
     {
-        // PREGUNTAR: Borramos los nodos actuales?
-        while (head != nullptr)
-        {
-            auto temporalNode = head;
-            head = head->next;
-            delete temporalNode;
-        }
-
-        // Copiamos los nodos de la otra lista con push_bakc()
-        auto current = other.get_head();
-        while (current != nullptr)
-        {
-            push_back(current->data);
-            current = current->next;
-        }
+        throw std::runtime_error("Not implemented yet");
     }
 
     /**
